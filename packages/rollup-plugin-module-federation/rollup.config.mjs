@@ -8,6 +8,8 @@ const config = ({ outputFormat }) => ({
   input: {
     index: 'src/index.ts',
   },
+  // TODO: set external
+  external: [],
   output: {
     dir: `dist/${outputFormat}`,
     entryFileNames: `[name].${outputFormat === 'esm' ? 'mjs' : 'cjs'}`,

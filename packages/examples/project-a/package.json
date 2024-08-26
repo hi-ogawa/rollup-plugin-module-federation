@@ -10,6 +10,7 @@
     "build:webpack": "webpack",
     "build:rollup": "rollup --config rollup.config.mjs",
     "build:rspack": "rspack build",
+    "build:rolldown": "rolldown -c rolldown.config.mjs",
     "clean": "rm -rf dist/",
     "build": "npm run clean && npm run build:webpack && npm run build:rspack && npm run build:rollup",
     "release": "",
