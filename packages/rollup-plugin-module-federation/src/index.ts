@@ -646,7 +646,6 @@ export default function federation(
         /**
          * TODO: We need human readable good code. Atleast until the terser plugin minifies it :p
          */
-        console.log('[remoteEntryCode]', remoteEntryCode.toString());
         return {
           code: remoteEntryCode.toString(),
           map: remoteEntryCode.generateMap(),
@@ -693,11 +692,14 @@ export default function federation(
                * Its crucial to call the this.resolve() with the importer (2nd arg) to actually resolve the import.
                */
               // @ts-ignore
-              const resolvedId = await self.resolve(node.source.value, id);
+              let resolvedId = await self.resolve(node.source.value, id);
 
               // TODO: resolvedId returns null on rolldown?
-              if (node.source.value === 'react') {
-                console.log('[transform]', [node.source.value, id, resolvedId]);
+              // https://github.com/rolldown/rolldown/issues/2071
+              if (!resolvedId) {
+                // console.log('[transform]', [node.source.value, id, resolvedId]);
+                // @ts-ignore
+                resolvedId = { id: node.source.value };
               }
 
               const resolvedModulePath = getModulePathFromResolvedId(

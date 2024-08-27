@@ -1,3 +1,5 @@
+import path from 'node:path';
+
 const getProjectBRemoteEntry = async (bundler, outputFormat) => {
   const remoteEntryName = bundler === 'webpack' ? 'my-remote-entry.js' : 'mf-manifest.json';
   if (process.env.CI && process.env.NETLIFY) {
@@ -23,9 +25,9 @@ export const federationconfig = async (bundler, outputFormat) => ({
   filename: 'my-remote-entry.js',
   exposes: {
     './react': 'react',
-    './pqr': './src/pqr.js',
+    './pqr': path.resolve('./src/pqr.js'),
     './index': {
-      import: './src/index.js',
+      import: path.resolve('./src/index.js'),
     },
   },
   remoteType: 'module',

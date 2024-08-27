@@ -15,7 +15,7 @@ const config = async ({ outputFormat }) =>
     output: {
       dir: `dist/rollup/${outputFormat}`,
       format: outputFormat,
-      sourcemap: true,
+      // sourcemap: true,
     },
     plugins: [
       replace({
