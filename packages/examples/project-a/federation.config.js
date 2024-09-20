@@ -25,9 +25,9 @@ export const federationconfig = async (bundler, outputFormat) => ({
   filename: 'my-remote-entry.js',
   exposes: {
     './react': 'react',
-    './pqr': path.resolve('./src/pqr.js'),
+    './pqr': './src/pqr.js',
     './index': {
-      import: path.resolve('./src/index.js'),
+      import: './src/index.js',
     },
   },
   remoteType: 'module',
