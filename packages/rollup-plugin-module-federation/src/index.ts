@@ -809,7 +809,7 @@ export default function federation(
     },
     outputOptions(outputOptions) {
       console.log('[outputOptions/manualChunks]');
-      if (1) return;
+      // if (1) return;
       /**
        * Need to create a mapping b/w shared modules and their chunks.
        * Unfortunately any of the hooks provided by rollup doesn't seem to have the information.
