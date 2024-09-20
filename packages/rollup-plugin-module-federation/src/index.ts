@@ -625,7 +625,11 @@ export default function federation(
                   .map(
                     ([key, exposedModule]) => `
                       case '${key}': {
-                        return import('${exposedModule.import[0] === "." ? resolve(exposedModule.import as string) : exposedModule.import}').then((module) => () => module);
+                        return import('${
+                          exposedModule.import[0] === '.'
+                            ? resolve(exposedModule.import as string)
+                            : exposedModule.import
+                        }').then((module) => () => module);
                       }`,
                   )
                   .join('')}

@@ -24,7 +24,7 @@
   ],
   "scripts": {
     "lint": "npx prettier . --write && npx eslint . --fix",
-    "prepare": "husky install",
+    "prepare": "true || husky install",
     "start": "npx http-server ."
   },
   "devDependencies": {
