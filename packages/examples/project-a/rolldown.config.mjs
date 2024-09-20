@@ -1,9 +1,9 @@
 // @ts-check
-import commonjs from '@rollup/plugin-commonjs';
-import { nodeResolve } from '@rollup/plugin-node-resolve';
-import replace from '@rollup/plugin-replace';
-import copy from 'rollup-plugin-copy';
-import json from '@rollup/plugin-json';
+// import commonjs from '@rollup/plugin-commonjs';
+// import { nodeResolve } from '@rollup/plugin-node-resolve';
+// import replace from '@rollup/plugin-replace';
+// import copy from 'rollup-plugin-copy';
+// import json from '@rollup/plugin-json';
 // import brotli from 'rollup-plugin-brotli';
 
 import federation from 'rollup-plugin-module-federation';

@@ -808,7 +808,7 @@ export default function federation(
       },
     },
     outputOptions(outputOptions) {
-      console.log('[outputOptions]');
+      console.log('[outputOptions/manualChunks]');
       if (1) return;
       /**
        * Need to create a mapping b/w shared modules and their chunks.
@@ -862,7 +862,7 @@ export default function federation(
       };
     },
     generateBundle(_, bundle) {
-      console.log('[generateBundle]');
+      console.log('[generateBundle/mf-manifest.json]');
       if (1) return;
 
       if (federationConfig?.manifest) {
