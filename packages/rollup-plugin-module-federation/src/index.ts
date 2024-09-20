@@ -55,6 +55,7 @@ const IMPORTS_TO_FEDERATED_IMPORTS_NODES = {
   /* ExportAllDeclaration: 'ExportAllDeclaration', */
 };
 
+// TOOD: use virtual module
 const REMOTE_ENTRY_MODULE_ID: string = '__remoteEntry__';
 const REMOTE_ENTRY_FILE_NAME: string = `${REMOTE_ENTRY_MODULE_ID}.js`;
 
@@ -310,6 +311,23 @@ export default function federation(
 
   return {
     name: 'rollup-plugin-federation',
+    options(options) {
+      // TODO: how to merge options?
+      options.input = {
+        [remoteEntryFileName.slice(0, -3)]: REMOTE_ENTRY_MODULE_ID,
+      };
+      // this.emitFile({
+      //   type: 'chunk',
+      //   id: REMOTE_ENTRY_MODULE_ID,
+      //   name: name ?? REMOTE_ENTRY_NAME,
+      //   fileName: remoteEntryFileName,
+      //   importer: undefined,
+      // });
+      // return {
+      //   input: REMOTE_ENTRY_MODULE_ID
+      //   // input: { [REMOTE_ENTRY_NAME]: "virtual:" + REMOTE_ENTRY_MODULE_ID },
+      // }
+    },
     async buildStart() {
       /**
        * For each shared and exposed module we store the resolved paths for those modules.
@@ -383,6 +401,8 @@ export default function federation(
          */
         /* eslint-disable-next-line no-await-in-loop */
         const resolvedId = await this.resolve(moduleNameOrPath);
+        if (!resolvedId) continue;
+
         const resolvedModulePath = getModulePathFromResolvedId(
           resolvedId?.id as string,
         );
@@ -430,13 +450,13 @@ export default function federation(
        * Emit a file corresponding to the remote container.
        * This plugin will itself resolve this file in resolveId() and provide the implementation of the file in load()
        */
-      this.emitFile({
-        type: 'chunk',
-        id: REMOTE_ENTRY_MODULE_ID,
-        name: name ?? REMOTE_ENTRY_NAME,
-        fileName: remoteEntryFileName,
-        importer: undefined,
-      });
+      // this.emitFile({
+      //   type: 'chunk',
+      //   id: REMOTE_ENTRY_MODULE_ID,
+      //   name: name ?? REMOTE_ENTRY_NAME,
+      //   fileName: remoteEntryFileName,
+      //   importer: undefined,
+      // });
     },
     resolveId(source) {
       /**
@@ -446,6 +466,8 @@ export default function federation(
       if (source === REMOTE_ENTRY_MODULE_ID) {
         return REMOTE_ENTRY_MODULE_ID;
       }
+
+      // TODO: can move to `options.external` directly?
       /**
        * Check all the remote modules.
        * For remote modules, we just resolve it to the whatever the import was.
@@ -458,7 +480,7 @@ export default function federation(
           };
         }
       }
-      return null;
+      // return null;
     },
     load(id) {
       /**
@@ -593,6 +615,8 @@ export default function federation(
         /**
          * Implementing the get method of the container
          */
+        // TODO: `exposedModule.import` needs to be pre-resolved for rolldown?
+        // otherwise transform hooks gets called with `transform(..., "src/index.js", ...)`
         remoteEntryCode.append(
           `
             const get = (module) => {
@@ -601,7 +625,11 @@ export default function federation(
                   .map(
                     ([key, exposedModule]) => `
                       case '${key}': {
-                        return import('${exposedModule.import}').then((module) => () => module);
+                        return import('${
+                          exposedModule.import[0] === '.'
+                            ? resolve(exposedModule.import as string)
+                            : exposedModule.import
+                        }').then((module) => () => module);
                       }`,
                   )
                   .join('')}
@@ -636,14 +664,18 @@ export default function federation(
        */
       order: 'post',
       async handler(code, id) {
-        const ast = this.parse(code);
-        const magicString = new MagicString(code);
         /**
          * We don't want to rewrite the imports for the remote entry as well as the implementation of the federated import expression
          */
         if (id === REMOTE_ENTRY_MODULE_ID) {
           return null;
         }
+        // console.log({ code, id });
+        // TODO: PluginContext.parse not supported on rolldown
+        const acornLoose = await import('acorn-loose');
+        const ast = acornLoose.parse(code, { ecmaVersion: 2020 });
+        // const ast = this.parse(code);
+        const magicString = new MagicString(code);
         const self = this;
         let chunkHasFederatedImports = false;
         await asyncWalk(ast as Node, {
@@ -664,10 +696,20 @@ export default function federation(
                * Its crucial to call the this.resolve() with the importer (2nd arg) to actually resolve the import.
                */
               // @ts-ignore
-              const resolvedId = await self.resolve(node.source.value, id);
+              let resolvedId = await self.resolve(node.source.value, id);
+
+              // TODO: resolvedId returns null on rolldown?
+              // https://github.com/rolldown/rolldown/issues/2071
+              if (!resolvedId) {
+                // console.log('[transform]', [node.source.value, id, resolvedId]);
+                // @ts-ignore
+                resolvedId = { id: node.source.value };
+              }
+
               const resolvedModulePath = getModulePathFromResolvedId(
                 resolvedId?.id as string,
               );
+
               /**
                * We treat shared modules differently from remote modules.
                * We don't need to do anything to exposed modules ?
@@ -770,6 +812,8 @@ export default function federation(
       },
     },
     outputOptions(outputOptions) {
+      console.log('[outputOptions/manualChunks]');
+      // if (1) return;
       /**
        * Need to create a mapping b/w shared modules and their chunks.
        * Unfortunately any of the hooks provided by rollup doesn't seem to have the information.
@@ -822,6 +866,9 @@ export default function federation(
       };
     },
     generateBundle(_, bundle) {
+      console.log('[generateBundle/mf-manifest.json]');
+      if (1) return;
+
       if (federationConfig?.manifest) {
         if (typeof federationConfig?.getPublicPath !== 'string') {
           /**

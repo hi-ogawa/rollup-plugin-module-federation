@@ -9,11 +9,13 @@ import federation from 'rollup-plugin-module-federation';
 
 import { federationconfig } from './federation.config.js';
 
-const config = async ({ outputFormat }) => ({
+import { defineConfig } from 'rollup';
+
+const config = async ({ outputFormat }) => defineConfig({
   output: {
     dir: `dist/rollup/${outputFormat}`,
     format: outputFormat,
-    sourcemap: true,
+    // sourcemap: true,
   },
   plugins: [
     replace({
@@ -40,7 +42,7 @@ const config = async ({ outputFormat }) => ({
 
 const multiBuildConfig = [
   await config({ outputFormat: 'esm' }),
-  await config({ outputFormat: 'system' }),
+  // await config({ outputFormat: 'system' }),
 ];
 
 export default multiBuildConfig;
