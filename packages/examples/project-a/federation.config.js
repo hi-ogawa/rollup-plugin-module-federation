@@ -1,5 +1,3 @@
-import path from 'node:path';
-
 const getProjectBRemoteEntry = async (bundler, outputFormat) => {
   const remoteEntryName = bundler === 'webpack' ? 'my-remote-entry.js' : 'mf-manifest.json';
   if (process.env.CI && process.env.NETLIFY) {

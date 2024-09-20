@@ -34,7 +34,7 @@
     "http-server": "14.1.1",
     "husky": "8.0.3",
     "prettier": "3.0.0",
-    "rolldown": "^0.12.2-snapshot-8ea9f31-20240826003035"
+    "rolldown": "0.13.2-snapshot-ff62f77-20240920003239"
   },
   "engines": {
     "node": ">= 18.0.0"
